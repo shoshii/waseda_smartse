@@ -20,21 +20,19 @@
 1. stateが running であることを確認して、Public DNS(IPv4)をメモする
 ![画像](../images/public_dns.png)
 
-## 2. インスタンスにログイン
+
+## 2. インスタンスにJava8、CCMインストール
 
 1. ターミナルを立ち上げ、上で取得した秘密鍵のパーミションを400にする
 ```aidl
 $ mv ~/Downloads/your_name.pem ./
 $ chmod 400 your_name.pem
 ```
-1. 秘密鍵、HostKeyAlgorithms, ユーザを指定してログインする
+2. 秘密鍵、HostKeyAlgorithms, ユーザを指定してログインする
 ```aidl
 $ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user@ec2-13-209-99-253.ap-northeast-2.compute.amazonaws.com
 ```
-
-## 2. Java8、CCMインストール
-
-1. Java8のインストール
+3. Java8のインストール
 ```aidl
 $ sudo yum install -y java
 $ java -version
@@ -42,14 +40,14 @@ openjdk version "1.8.0_181"
 OpenJDK Runtime Environment (build 1.8.0_181-b13)
 OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 ```
-1. pip のインストール
+4. pip のインストール
 ```aidl
 $ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 $ python get-pip.py --user
 $ pip -V
 pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
 ```
-1. CCMのインストール
+5. CCMのインストール
 ```aidl
 $ pip install ccm --user
 $ ccm
@@ -66,17 +64,226 @@ Usage:
 ```aidl
 $ ccm create -n 3 -v 2.0.11 test
 ```
-1. クラスタを起動する
+2. クラスタを起動する
 ```aidl
 $ ccm start
-$  ccm status
+$ ccm status
 Cluster: 'test'
 ---------------
 node1: UP
 node3: UP
 node2: UP
+
 ```
+
+ノードとIPの関係は、下記のようになります。
+
+| name | IP | 
+|:-------------|:-------------:|
+| node1 | 127.0.0.1 | 
+| node2 | 127.0.0.2 |
+| node3 | 127.0.0.3 |
 
 ## 4. キースペース、テーブル作成
 
+1. キースペースとテーブルを作成し、データを投入する。データのトークンを表示する
+```aidl
+$ ccm node1 cqlsh
+> CREATE KEYSPACE architecture WITH REPLICATION = 
+  {'class':'NetworkTopologyStrategy','datacenter1': 1};
+> USE architecture; 
+> CREATE TABLE user (name TEXT PRIMARY KEY); 
+> INSERT INTO user (name) VALUES ('Tony');
+  INSERT INTO user (name) VALUES ('Steve');
+  INSERT INTO user (name) VALUES ('Bruce');
+  INSERT INTO user (name) VALUES ('Thor');
+  INSERT INTO user (name) VALUES ('Natasha');
+  INSERT INTO user (name) VALUES ('Clint');
+> SELECT name, token(name) FROM user;
+```
+
+
 ## 5. トークンレンジの確認
+
+1. トークンレンジ確認
+
+各ノードの担当トークン範囲を表示する。それと4-1で表示したトークンを付き合わせ、どのデータが
+どのノードに格納されているか確認する
+
+```aidl
+$ ccm node1 nodetool describering architecture
+```
+
+2. 1.で割り出した結果が正しいかどうか、下記のコマンドで確認する
+
+```aidl
+$ ccm node1 nodetool getendpoints architecture user Tony 
+$ ccm node1 nodetool getendpoints architecture user Steve
+$ ccm node1 nodetool getendpoints architecture user Bruce 
+$ ccm node1 nodetool getendpoints architecture user Thor 
+$ ccm node1 nodetool getendpoints architecture user Natasha 
+$ ccm node1 nodetool getendpoints architecture user Clint
+```
+
+# 演習2
+
+1. 食事履歴テーブルを作成
+
+cqlshを使って、architectureキースペースにfood_historyテーブルを作成する
+
+```aidl
+$ ccm node1 cqlsh
+> USE architecture;
+> CREATE TABLE food_history (
+  uid text,
+  date text,
+  category text,
+  menu text,
+  time text,
+  PRIMARY KEY (uid, date, category)
+);
+```
+
+2. テストデータ投入
+
+```aidl
+$ ccm node1 cqlsh
+> USE architecture;
+> INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'dinner', 'Buridaikon Set', '18:06');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'lunch', 'Tyuuka Set', '12:35');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('shoshii', '20161115', 'lunch', 'Spicy Curry', '13:21');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('tyamada', '20161114', 'breakfast', 'Western Set', '08:06');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('jsato', '20161114', 'lunch', 'Rahmen', '11:35');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+```
+
+3. データの内部構造確認
+
+cassandra-cli というツールを使って、データの内部構造を確認し、表形式データとの違いを理解する
+
+```aidl
+$ ~/.ccm/test/node1/bin/cassandra-cli
+[default@unknown] use architecture;
+[default@architecture] list food_history;
+
+```
+
+# 演習3
+
+1. パーティション定義を誤ったテーブルを構築、データ投入
+
+```aidl
+$ ccm node1 cqlsh
+> USE architecture;
+> CREATE TABLE food_history2 (
+  uid text,
+  date text,
+  category text,
+  menu text,
+  time text,
+  PRIMARY KEY (category, uid, date)
+);
+> INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'dinner', 'Buridaikon Set', '18:06');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'lunch', 'Tyuuka Set', '12:35');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161115', 'lunch', 'Spicy Curry', '13:21');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('tyamada', '20161114', 'breakfast', 'Western Set', '08:06');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('jsato', '20161114', 'lunch', 'Rahmen', '11:35');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+```
+
+2. パーティション定義を誤ったテーブルの内部構造を確認
+
+パーティションサイズの偏りに注目します
+
+```aidl
+$ ~/.ccm/test/node1/bin/cassandra-cli
+[default@unknown] use architecture;
+[default@architecture] list food_history2;
+```
+
+# 演習4
+
+1. 複合パーティションキーを使ったテーブルを構築する
+
+```aidl
+$ ccm node1 cqlsh
+> USE architecture;
+> CREATE TABLE food_history3 (
+  uid text,
+  date text,
+  category text,
+  menu text,
+  time text,
+  PRIMARY KEY ((uid, date), category)
+);
+> INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'dinner', 'Buridaikon Set', '18:06');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161114', 'lunch', 'Tyuuka Set', '12:35');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('shoshii', '20161115', 'lunch', 'Spicy Curry', '13:21');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('tyamada', '20161114', 'breakfast', 'Western Set', '08:06');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('jsato', '20161114', 'lunch', 'Rahmen', '11:35');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+```
+
+2. 複合パーティションキーを使ったテーブルの内部構造を確認する
+
+```aidl
+$ ~/.ccm/test/node1/bin/cassandra-cli
+[default@unknown] use architecture;
+[default@architecture] list food_history3;
+
+```
+
+3. 複合パーティションキーを使ったテーブルにクエリを実行する
+
+片方は成功し、片方は失敗するので、その理由を把握しておく
+
+```aidl
+$ ccm node1 cqlsh
+> USE architecture;
+> SELECT * from food_history3 WHERE uid = 'shoshii' AND date = '20161114';
+> SELECT * from food_history3 WHERE uid = 'shoshii';
+```
+
+# 演習5
+
+1. セカンダリインデックスを用いた検索を行う
+
+インデックス作成前は失敗し、作成後は成功する
+
+```aidl
+$ ccm node1 cqlsh> USE architecture;
+> SELECT * FROM food_history WHERE menu = 'Spicy Curry';
+> CREATE INDEX ON food_history (menu);
+> SELECT * FROM food_history WHERE menu = 'Spicy Curry';
+```
+
+# 宿題
+
+1. NoSQLが登場した背景を、簡潔に論述してください 
+1. NoSQL利用が適さないユースケースを１つ例示し、その理由を簡潔に論述してください
+1. Cassandraのパーティションキー設定にあたっての注意点を論述してください
+1. Cassandraのクエリ設計をする際の注意点を簡潔に論述してください
