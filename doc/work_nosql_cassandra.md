@@ -28,9 +28,9 @@
 $ mv ~/Downloads/your_name.pem ./
 $ chmod 400 your_name.pem
 ```
-2. 秘密鍵、HostKeyAlgorithms, ユーザを指定してログインする
+2. 秘密鍵、HostKeyAlgorithms, ec2-userユーザ, 1で作成したインスタンスのpublic dnsを指定してログインする
 ```aidl
-$ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user@ec2-13-209-99-253.ap-northeast-2.compute.amazonaws.com
+$ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user<public_dns>
 ```
 3. Java8のインストール
 ```aidl
@@ -74,6 +74,17 @@ node1: UP
 node3: UP
 node2: UP
 
+$ ccm node1 nodetool status
+
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address    Load       Tokens  Owns (effective)  Host ID                               Rack
+UN  127.0.0.1  45.94 KB   1       66.7%             0288df05-191d-435c-afff-44dc0d44db78  rack1
+UN  127.0.0.2  46.04 KB   1       66.7%             30c73901-1e7a-498d-8832-f5455b3615e4  rack1
+UN  127.0.0.3  46.05 KB   1       66.7%             3148f920-4a4e-4f24-981c-1246c8f721f8  rack1
+
 ```
 
 ノードとIPの関係は、下記のようになります。
@@ -100,6 +111,7 @@ $ ccm node1 cqlsh
   INSERT INTO user (name) VALUES ('Natasha');
   INSERT INTO user (name) VALUES ('Clint');
 > SELECT name, token(name) FROM user;
+> exit
 ```
 
 
@@ -147,8 +159,6 @@ $ ccm node1 cqlsh
 2. テストデータ投入
 
 ```aidl
-$ ccm node1 cqlsh
-> USE architecture;
 > INSERT INTO food_history (uid, date, category, menu, time)
   VALUES('shoshii', '20161114', 'dinner', 'Buridaikon Set', '18:06');
 INSERT INTO food_history (uid, date, category, menu, time)
@@ -163,6 +173,20 @@ INSERT INTO food_history (uid, date, category, menu, time)
   VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
 INSERT INTO food_history (uid, date, category, menu, time)
   VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161115', 'lunch', 'Spicy Curry', '12:53');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161116', 'lunch', 'Rahmen', '12:45');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('ktana', '20161115', 'lunch', 'Japanese Set', '13:13');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('ktana', '20161116', 'lunch', 'Soba', '12:15');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('awakaba', '20161115', 'lunch', 'Curry', '13:13');
+INSERT INTO food_history (uid, date, category, menu, time)
+  VALUES('awakaba', '20161116', 'lunch', 'Buta Don', '11:15');
+
+> exit
 ```
 
 3. データの内部構造確認
@@ -173,6 +197,7 @@ cassandra-cli というツールを使って、データの内部構造を確認
 $ ~/.ccm/test/node1/bin/cassandra-cli
 [default@unknown] use architecture;
 [default@architecture] list food_history;
+[default@architecture] exit;
 
 ```
 
@@ -205,16 +230,32 @@ INSERT INTO food_history2 (uid, date, category, menu, time)
   VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
 INSERT INTO food_history2 (uid, date, category, menu, time)
   VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161115', 'lunch', 'Spicy Curry', '12:53');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161116', 'lunch', 'Rahmen', '12:45');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('ktana', '20161115', 'lunch', 'Japanese Set', '13:13');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('ktana', '20161116', 'lunch', 'Soba', '12:15');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('awakaba', '20161115', 'lunch', 'Curry', '13:13');
+INSERT INTO food_history2 (uid, date, category, menu, time)
+  VALUES('awakaba', '20161116', 'lunch', 'Buta Don', '11:15');
+  
+exit;
 ```
 
 2. パーティション定義を誤ったテーブルの内部構造を確認
 
-パーティションサイズの偏りに注目します
+今後、このテーブルに食事履歴が追加されていった場合、
+パーティションがどのように変化するか、演習2との違いに着目し考察してみてください
 
 ```aidl
 $ ~/.ccm/test/node1/bin/cassandra-cli
 [default@unknown] use architecture;
 [default@architecture] list food_history2;
+[default@architecture] exit;
 ```
 
 # 演習4
@@ -246,15 +287,31 @@ INSERT INTO food_history3 (uid, date, category, menu, time)
   VALUES('jsato', '20161115', 'lunch', 'Buffe', '11:53');
 INSERT INTO food_history3 (uid, date, category, menu, time)
   VALUES('jsato', '20161116', 'lunch', 'Udon', '11:45');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161115', 'lunch', 'Spicy Curry', '12:53');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('ssuzu', '20161116', 'lunch', 'Rahmen', '12:45');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('ktana', '20161115', 'lunch', 'Japanese Set', '13:13');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('ktana', '20161116', 'lunch', 'Soba', '12:15');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('awakaba', '20161115', 'lunch', 'Curry', '13:13');
+INSERT INTO food_history3 (uid, date, category, menu, time)
+  VALUES('awakaba', '20161116', 'lunch', 'Buta Don', '11:15');
+  
+> exit;
 ```
 
 2. 複合パーティションキーを使ったテーブルの内部構造を確認する
+
+演習2と比べて、パーティションが分割されることを確認する
 
 ```aidl
 $ ~/.ccm/test/node1/bin/cassandra-cli
 [default@unknown] use architecture;
 [default@architecture] list food_history3;
-
+[default@architecture] exit;
 ```
 
 3. 複合パーティションキーを使ったテーブルにクエリを実行する
@@ -266,6 +323,7 @@ $ ccm node1 cqlsh
 > USE architecture;
 > SELECT * from food_history3 WHERE uid = 'shoshii' AND date = '20161114';
 > SELECT * from food_history3 WHERE uid = 'shoshii';
+> exit;
 ```
 
 # 演習5
@@ -275,7 +333,8 @@ $ ccm node1 cqlsh
 インデックス作成前は失敗し、作成後は成功する
 
 ```aidl
-$ ccm node1 cqlsh> USE architecture;
+$ ccm node1 cqlsh
+> USE architecture;
 > SELECT * FROM food_history WHERE menu = 'Spicy Curry';
 > CREATE INDEX ON food_history (menu);
 > SELECT * FROM food_history WHERE menu = 'Spicy Curry';
