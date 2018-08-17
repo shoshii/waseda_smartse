@@ -359,7 +359,7 @@ $ ccm node1 cqlsh
 ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行
 
 ```aidl
-$ echo "INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );" > insert.cql
+$ echo "INSERT INTO anti.test ( id, name ) VALUES ( 'abc', 'name1' );" > insert.cql
 $ for i in {1..1000}; do ccm node1 cqlsh -f insert.cql && ccm node1 nodetool flush; done
 ```
 
