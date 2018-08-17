@@ -30,7 +30,7 @@ $ chmod 400 your_name.pem
 ```
 2. 秘密鍵、HostKeyAlgorithms, ec2-userユーザ, 1で作成したインスタンスのpublic dnsを指定してログインする
 ```aidl
-$ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user<public_dns>
+$ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user@<public_dns>
 ```
 3. Java8のインストール
 ```aidl
@@ -340,9 +340,53 @@ $ ccm node1 cqlsh
 > SELECT * FROM food_history WHERE menu = 'Spicy Curry';
 ```
 
-# 宿題
+# 演習6
 
-1. NoSQLが登場した背景を、簡潔に論述してください 
-1. NoSQL利用が適さないユースケースを１つ例示し、その理由を簡潔に論述してください
-1. Cassandraのパーティションキー設定にあたっての注意点を論述してください
-1. Cassandraのクエリ設計をする際の注意点を簡潔に論述してください
+1. テスト用キースペース・テーブル作成
+
+```aidl
+$ ccm node1 cqlsh
+> CREATE KEYSPACE anti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+> USE anti;
+> CREATE TABLE test (id text PRIMARY KEY, name text);
+> ALTER TABLE test WITH compaction = {'class' : 'SizeTieredCompactionStrategy', 'min_threshold':9999, 'max_threshold':9999};
+> INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );
+
+```
+
+2. データの書き込みとフラッシュを繰り返す
+
+ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行
+
+```aidl
+$ echo "INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );" > insert.cql
+$ for i in {1..1000}; do ccm node1 cqlsh -f insert.cql && ccm node1 nodetool flush; done
+```
+
+3. データの読み取りを繰り返す
+
+別ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行
+
+```aidl
+$ echo "SELECT * FROM anti.test WHERE id = 'abc';" > select.cql
+$ for i in {1..1000}; do ccm node1 cqlsh -f select.cql; done
+```
+
+4. 読み取り状況を確認する
+
+読み込んだSSTableの数、レイテンシ分布に着目します
+
+```aidl
+$ ccm node1 nodetool cfhistograms anti test
+```
+
+5. データをコンパクションして、再度読み取り状況を確認する
+
+複数のSSTableを一つにまとめます。
+まとめた後、再度4.を実行して読み取りSSTableの数、レイテンシ分布に着目します
+
+```aidl
+$ ccm node1 nodetool compact
+```
+
+
