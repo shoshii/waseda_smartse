@@ -21,11 +21,13 @@
 ![画像](../images/public_dns.png)
 
 
-## 2. インスタンスにJava8、CCMインストール
+## 2-0. インスタンスにSSHログイン
+
+インスタンスには、SSH公開鍵認証方式でログインします。
+
+### Macbookで接続する場合
 
 1. ターミナルを立ち上げ、上で取得した秘密鍵のパーミションを400にする
-
-**この手順は、Tera Term や Putty でSSH接続する場合は実施不要です。**
 
 ```aidl
 $ mv ~/Downloads/your_name.pem ./
@@ -36,6 +38,21 @@ $ chmod 400 your_name.pem
 ```aidl
 $ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user@<public_dns>
 ```
+
+### Windows PCで接続する場合
+
+Tera Term を使います。
+
+1. 新しい接続 -> TCP/IP -> ホストに、上のPublic DNS を入力
+
+2. ログイン中のダイアログが表示されるので、RSA/DSA鍵を使う　にチェックして、
+秘密鍵として上でダウンロードした秘密鍵を指定します。
+
+3. OK を押し、SSHログインします。
+
+
+## 2. インスタンスにJava8、CCMインストール 
+
 3. Java8のインストール
 ```aidl
 $ sudo yum install -y java
