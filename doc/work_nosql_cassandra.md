@@ -24,10 +24,14 @@
 ## 2. インスタンスにJava8、CCMインストール
 
 1. ターミナルを立ち上げ、上で取得した秘密鍵のパーミションを400にする
+
+**この手順は、Tera Term や Putty でSSH接続する場合は実施不要です。**
+
 ```aidl
 $ mv ~/Downloads/your_name.pem ./
 $ chmod 400 your_name.pem
 ```
+
 2. 秘密鍵、HostKeyAlgorithms, ec2-userユーザ, 1で作成したインスタンスのpublic dnsを指定してログインする
 ```aidl
 $ ssh -i your_name.pem -oHostKeyAlgorithms=+ssh-dss ec2-user@<public_dns>
