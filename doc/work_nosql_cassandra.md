@@ -403,6 +403,57 @@ $ for i in {1..1000}; do ccm node1 cqlsh -f select.cql; done
 $ ccm node1 nodetool cfhistograms anti test
 ```
 
+> ヒストグラムの読み方
+> 上のコマンドを打つと、Read処理時の読み取りSSTable数、レイテンシ分布が出ます。下のコメントのように解釈できます。
+```aidl
+
+anti/test histograms
+
+SSTables per Read
+446 sstables: 35 # 446のSSTableファイルを読んだリクエストが、35回あったことを示す
+
+Write Latency (microseconds)
+149 us: 31
+179 us: 25
+215 us: 1
+258 us: 0
+310 us: 0
+372 us: 0
+446 us: 1
+
+Read Latency (microseconds)
+  3311 us: 16 # レイテンシが3311マイクロ秒だったリクエストが、16回あったことを示す
+  3973 us: 12
+  4768 us: 0
+  5722 us: 0
+  6866 us: 0
+  8239 us: 0
+  9887 us: 0
+ 11864 us: 0
+ 14237 us: 0
+ 17084 us: 0
+ 20501 us: 1
+ 24601 us: 0
+ 29521 us: 0
+ 35425 us: 0
+ 42510 us: 0
+ 51012 us: 1
+ 61214 us: 2
+ 73457 us: 0
+ 88148 us: 1
+105778 us: 1
+126934 us: 0
+152321 us: 1
+
+Partition Size (bytes)
+72 bytes: 415
+
+Cell Count per Partition
+2 cells: 415
+
+
+```
+
 5. データをコンパクションして、再度読み取り状況を確認する
 
 複数のSSTableを一つにまとめます。
