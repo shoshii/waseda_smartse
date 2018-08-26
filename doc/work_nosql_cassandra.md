@@ -410,7 +410,7 @@ $ ccm node1 nodetool cfhistograms anti test
 anti/test histograms
 
 SSTables per Read
-446 sstables: 35 # 446のSSTableファイルを読んだリクエストが、35回あったことを示す
+446 sstables: 35 # 446個のSSTableファイルを読んだリクエストが、35回あったことを示す
 
 Write Latency (microseconds)
 149 us: 31
