@@ -126,7 +126,7 @@ $ ccm node1 cqlsh
 > CREATE KEYSPACE architecture WITH REPLICATION = 
   {'class':'NetworkTopologyStrategy','datacenter1': 1};
 > USE architecture; 
-> CREATE TABLE user (name TEXT PRIMARY KEY); 
+> CREATE TABLE IF NOT EXISTS user (name TEXT PRIMARY KEY); 
 > INSERT INTO user (name) VALUES ('Tony');
   INSERT INTO user (name) VALUES ('Steve');
   INSERT INTO user (name) VALUES ('Bruce');
@@ -169,7 +169,7 @@ cqlshを使って、architectureキースペースにfood_historyテーブルを
 ```aidl
 $ ccm node1 cqlsh
 > USE architecture;
-> CREATE TABLE food_history (
+> CREATE TABLE IF NOT EXISTS food_history (
   uid text,
   date text,
   category text,
@@ -231,7 +231,7 @@ $ ~/.ccm/test/node1/bin/cassandra-cli
 ```aidl
 $ ccm node1 cqlsh
 > USE architecture;
-> CREATE TABLE food_history2 (
+> CREATE TABLE IF NOT EXISTS food_history2 (
   uid text,
   date text,
   category text,
@@ -288,7 +288,7 @@ $ ~/.ccm/test/node1/bin/cassandra-cli
 ```aidl
 $ ccm node1 cqlsh
 > USE architecture;
-> CREATE TABLE food_history3 (
+> CREATE TABLE IF NOT EXISTS food_history3 (
   uid text,
   date text,
   category text,
@@ -369,9 +369,9 @@ $ ccm node1 cqlsh
 
 ```aidl
 $ ccm node1 cqlsh
-> CREATE KEYSPACE anti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+> CREATE KEYSPACE IF NOT EXISTS anti WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
 > USE anti;
-> CREATE TABLE test (id text PRIMARY KEY, name text);
+> CREATE TABLE IF NOT EXISTS test (id text PRIMARY KEY, name text);
 > ALTER TABLE test WITH compaction = {'class' : 'SizeTieredCompactionStrategy', 'min_threshold':9999, 'max_threshold':9999};
 > INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );
 
