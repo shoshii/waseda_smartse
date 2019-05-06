@@ -35,6 +35,35 @@ OpenJDK Runtime Environment (build 1.8.0_181-b13)
 OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 ```
 
+### Maven, YCSBのインストール
+
+演習でCassandraへの負荷検証を行うため、YCSBをインストールします。YCSBをソースからビルドするので、Mavenのインストールも行います。
+
+```
+$ sudo apt install maven
+# インストールが停止する場合は、エンターキーを押してみてください。
+$ mvn -version
+Apache Maven 3.6.0
+Maven home: /usr/share/maven
+Java version: 1.8.0_191, vendor: Oracle Corporation, runtime: /usr/lib/jvm/java-8-openjdk-amd64/jre
+Default locale: en, platform encoding: UTF-8
+OS name: "linux", version: "4.4.0-17134-microsoft", arch: "amd64", family: "unix"
+
+$ git clone https://github.com/brianfrankcooper/YCSB.git
+$ cd YCSB
+# YCSBパッケージビルド（Apache IgniteのTestでエラーが出るので、Testをスキップします）
+$ mvn clean package -DskipTests
+$ bin/ycsb
+usage: bin/ycsb command database [options]
+
+Commands:
+    load           Execute the load phase
+    run            Execute the transaction phase
+    shell          Interactive mode
+...
+$ 
+```
+
 ### python2, pip のインストール
 
 ```aidl
@@ -65,8 +94,10 @@ Usage:
 
 ### 1. ノード数3のクラスタ起動用ファイルを作成する（バージョンは2.0.11)
 ```aidl
+# test  という名前でCassandraクラスタを作成する
 $ ccm create -n 3 -v 2.0.11 test
 ```
+
 ### 2. クラスタを起動する
 ```aidl
 $ ccm start
@@ -451,4 +482,163 @@ Cell Count per Partition
 $ ccm node1 nodetool compact
 ```
 
+# 演習7
 
+## YCSBを用いて、Cassandraに様々な負荷をかけてみる
+
+### 1. テスト用クラスタの起動
+
+```
+$ ccm stop
+# 単体性能を図るため、ノード数１で ycsb という名前のクラスタを作成
+$ ccm create -n 1 -v 2.0.11 ycsb
+$ ccm start
+$ ccm node1 nodetool status
+```
+
+### 2. テスト用キースペース、テーブル作成
+
+```
+$ ccm node1 cqlsh
+create keyspace ycsb
+    WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor': 1 };
+
+USE ycsb;
+
+create table usertable (
+    y_id varchar primary key,
+    field0 varchar,
+    field1 varchar,
+    field2 varchar,
+    field3 varchar,
+    field4 varchar,
+    field5 varchar,
+    field6 varchar,
+    field7 varchar,
+    field8 varchar,
+    field9 varchar);
+```
+
+### 3. 負荷をかけてみる
+
+```
+$ cd YCSB
+# ワークロードAのデータ準備
+$ bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+Loading workload...
+Starting test.
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+[OVERALL], RunTime(ms), 5182
+[OVERALL], Throughput(ops/sec), 192.97568506368196
+[TOTAL_GCS_PS_Scavenge], Count, 1
+[TOTAL_GC_TIME_PS_Scavenge], Time(ms), 43
+[TOTAL_GC_TIME_%_PS_Scavenge], Time(%), 0.8297954457738325
+[TOTAL_GCS_PS_MarkSweep], Count, 0
+[TOTAL_GC_TIME_PS_MarkSweep], Time(ms), 0
+[TOTAL_GC_TIME_%_PS_MarkSweep], Time(%), 0.0
+[TOTAL_GCs], Count, 1
+[TOTAL_GC_TIME], Time(ms), 43
+[TOTAL_GC_TIME_%], Time(%), 0.8297954457738325
+[CLEANUP], Operations, 1
+[CLEANUP], AverageLatency(us), 2292736.0
+[CLEANUP], MinLatency(us), 2291712
+[CLEANUP], MaxLatency(us), 2293759
+[CLEANUP], 95thPercentileLatency(us), 2293759
+[CLEANUP], 99thPercentileLatency(us), 2293759
+[INSERT], Operations, 1000
+[INSERT], AverageLatency(us), 1943.965
+[INSERT], MinLatency(us), 830
+[INSERT], MaxLatency(us), 53279
+[INSERT], 95thPercentileLatency(us), 3201
+[INSERT], 99thPercentileLatency(us), 5723
+[INSERT], Return=OK, 1000
+$
+# 負荷をかける
+$ bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+Loading workload...
+Starting test.
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+DBWrapper: report latency for each error is false and specific error codes to track for latency are: []
+[OVERALL], RunTime(ms), 5016
+[OVERALL], Throughput(ops/sec), 199.36204146730464
+[TOTAL_GCS_PS_Scavenge], Count, 1
+[TOTAL_GC_TIME_PS_Scavenge], Time(ms), 42
+[TOTAL_GC_TIME_%_PS_Scavenge], Time(%), 0.8373205741626795
+[TOTAL_GCS_PS_MarkSweep], Count, 0
+[TOTAL_GC_TIME_PS_MarkSweep], Time(ms), 0
+[TOTAL_GC_TIME_%_PS_MarkSweep], Time(%), 0.0
+[TOTAL_GCs], Count, 1
+[TOTAL_GC_TIME], Time(ms), 42
+[TOTAL_GC_TIME_%], Time(%), 0.8373205741626795
+[READ], Operations, 497
+[READ], AverageLatency(us), 2001.8169014084508
+[READ], MinLatency(us), 910
+[READ], MaxLatency(us), 36671
+[READ], 95thPercentileLatency(us), 3313
+[READ], 99thPercentileLatency(us), 5371
+[READ], Return=OK, 497
+[CLEANUP], Operations, 1
+[CLEANUP], AverageLatency(us), 2288640.0
+[CLEANUP], MinLatency(us), 2287616
+[CLEANUP], MaxLatency(us), 2289663
+[CLEANUP], 95thPercentileLatency(us), 2289663
+[CLEANUP], 99thPercentileLatency(us), 2289663
+[UPDATE], Operations, 503
+[UPDATE], AverageLatency(us), 1583.4870775347913
+[UPDATE], MinLatency(us), 734
+[UPDATE], MaxLatency(us), 8999
+[UPDATE], 95thPercentileLatency(us), 2803
+[UPDATE], 99thPercentileLatency(us), 6475
+[UPDATE], Return=OK, 503
+```
+
+### 負荷設定ファイルの読み方
+
+```
+# レコード数
+recordcount=10000
+
+# 各フィールドのサイズ(デフォルトは100）
+fieldlength=100
+
+# オペレーション数
+operationcount=100000
+workload=com.yahoo.ycsb.workloads.CoreWorkload
+
+readallfields=true
+
+# READオペレーション比率
+readproportion=0.5
+
+# UPDATEオペレーション比率
+updateproportion=0.5
+
+scanproportion=0
+insertproportion=0
+
+requestdistribution=zipfian
+
+
+# 負荷をかけるプロセスのthread数
+threadcount=4
+
+```
+
+### fieldlengthを変えて負荷をかけてみる
+
+```
+$ vim workloads/workloada
+# fieldlength を100にして保存
+$  bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$  bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$ vim workloads/workloada
+# fieldlength を10000にして保存
+$  bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$  bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+# 結果を比較
+```
