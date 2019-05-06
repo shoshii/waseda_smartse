@@ -37,7 +37,7 @@ OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 
 ### Maven, YCSBのインストール
 
-演習でCassandraへの負荷検証を行うため、YCSBをインストールします。YCSBをソースからビルドするので、Mavenのインストールも行います。
+演習でCassandraへの負荷検証を行うため、YCSBをインストールします。YCSBビルドのため、Mavenのインストールも行います。
 
 ```
 $ sudo apt install maven
