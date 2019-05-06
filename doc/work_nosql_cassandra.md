@@ -23,9 +23,12 @@
 
 ### Java8のインストール
 
+この演習は、Java8を用いて行います。Java9以上ですとCassandraが動作しないのでご注意ください。
+
 ```aidl
 $ sudo apt update
 $ sudo apt install openjdk-8-jdk
+# インストールが停止する場合は、エンターキーを押してみてください。
 $ java -version
 openjdk version "1.8.0_181"
 OpenJDK Runtime Environment (build 1.8.0_181-b13)
@@ -38,6 +41,7 @@ OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 $ sudo apt install python
 $ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 $ python get-pip.py --user
+# pipへのPATHが通っていない場合、通します。
 $ export PATH=$PATH:/home/<user名>/.local/bin
 $ pip -V
 pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
