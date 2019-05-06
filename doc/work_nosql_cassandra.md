@@ -88,7 +88,7 @@ Usage:
 ...
 ```
 
-# 演習1
+# 演習1 Cassandraのデータ分散方式を確認する
 
 ## 1. Cassandra環境構築
 
@@ -174,7 +174,7 @@ $ ccm node1 nodetool getendpoints architecture user Natasha
 $ ccm node1 nodetool getendpoints architecture user Clint
 ```
 
-# 演習2
+# 演習2 Cassandraのデータ構造を確認する
 
 ## 1. 食事履歴テーブルを作成
 
@@ -239,7 +239,7 @@ $ ~/.ccm/test/node1/bin/cassandra-cli
 
 ```
 
-# 演習3
+# 演習3 偏りのあるデータ定義をしたときのデータ構造の変化を観察する
 
 ## 1. パーティション定義を誤ったテーブルを構築、データ投入
 
@@ -298,7 +298,7 @@ $ ~/.ccm/test/node1/bin/cassandra-cli
 [default@architecture] exit;
 ```
 
-# 演習4
+# 演習4 複合パーティションキーを使ったときのデータ構造の変化を把握する
 
 ## 1. 複合パーティションキーを使ったテーブルを構築する
 
@@ -368,9 +368,7 @@ SELECT * from food_history3 WHERE uid = 'shoshii';
 exit;
 ```
 
-# 演習5
-
-## 1. セカンダリインデックスを用いた検索を行う
+# 演習5 セカンダリインデックスを用いた検索を行う
 
 インデックス作成前は失敗し、作成後は成功する
 
@@ -382,7 +380,7 @@ CREATE INDEX ON food_history (menu);
 SELECT * FROM food_history WHERE menu = 'Spicy Curry';
 ```
 
-# 演習6
+# 演習6 データの断片化による性能変化を観察する
 
 ## 1. テスト用キースペース・テーブル作成
 
@@ -482,9 +480,7 @@ Cell Count per Partition
 $ ccm node1 nodetool compact
 ```
 
-# 演習7
-
-## YCSBを用いて、Cassandraに様々な負荷をかけてみる
+# 演習7 YCSBを用いて、Cassandraに様々な負荷をかけてみる
 
 ### 1. テスト用クラスタの起動
 
@@ -494,6 +490,15 @@ $ ccm stop
 $ ccm create -n 1 -v 2.0.11 ycsb
 $ ccm start
 $ ccm node1 nodetool status
+
+Note: Ownership information does not include topology; for complete information, specify a keyspace
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address    Load       Owns   Host ID                               Token                                    Rack
+UN  127.0.0.1  10.12 GB   100.0%  0115c96c-abc9-4952-8dd3-ce30738f6993  -9223372036854775808                     rack1
+$ 
 ```
 
 ### 2. テスト用キースペース、テーブル作成
