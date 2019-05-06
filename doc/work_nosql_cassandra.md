@@ -19,7 +19,9 @@
 
 [Windows10にUbuntuをインストールする方法(Fall Creators Update版)](https://ygkb.jp/7291#toc7)
 
-## インスタンスにJava8、CCMインストール 
+## UbuntuにJava8、CCMインストール 
+
+スタートメニュー内に「Ubuntu」が増えていますので、クリックしてログインします。
 
 ### Java8のインストール
 
