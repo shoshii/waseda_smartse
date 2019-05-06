@@ -530,6 +530,10 @@ create table usertable (
 $ cd YCSB
 # ワークロードAのデータ準備
 $ bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+```
+
+実行結果
+```
 Loading workload...
 Starting test.
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
@@ -561,8 +565,15 @@ DBWrapper: report latency for each error is false and specific error codes to tr
 [INSERT], 99thPercentileLatency(us), 5723
 [INSERT], Return=OK, 1000
 $
+```
+
+```
 # 負荷をかける
 $ bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+```
+
+実行結果
+```
 Loading workload...
 Starting test.
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
