@@ -526,9 +526,9 @@ create table usertable (
 
 ### 3. 負荷をかけてみる
 
+ワークロードAのデータ準備
 ```
 $ cd YCSB
-# ワークロードAのデータ準備
 $ bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
 ```
 
@@ -567,8 +567,8 @@ DBWrapper: report latency for each error is false and specific error codes to tr
 $
 ```
 
+負荷をかける
 ```
-# 負荷をかける
 $ bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
 ```
 
