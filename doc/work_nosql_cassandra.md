@@ -401,7 +401,7 @@ INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );
 
 ## 2. データの書き込みとフラッシュを繰り返す
 
-Ubuntuターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行します。
+Ubuntuターミナルをもう一つ立ち上げ、下記を実行します。
 書き込みとフラッシュを繰り返すことで、データの断片化を意図的に起こします。
 
 ```aidl
@@ -411,7 +411,7 @@ $ for i in {1..1000}; do ccm node1 cqlsh -f insert.cql && ccm node1 nodetool flu
 
 ## 3. データの読み取りを繰り返す
 
-別ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行します。
+Ubuntuターミナルをもう一つ立ち上げ、下記を実行して読み取り処理が常に発生している状況を起こします。
 
 ```aidl
 $ echo "SELECT * FROM anti.test WHERE id = 'abc';" > select.cql
