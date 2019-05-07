@@ -401,7 +401,8 @@ INSERT INTO test ( id, name ) VALUES ( 'abc', 'name1' );
 
 ## 2. データの書き込みとフラッシュを繰り返す
 
-Ubuntuターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行
+Ubuntuターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行します。
+書き込みとフラッシュを繰り返すことで、データの断片化を意図的に起こします。
 
 ```aidl
 $ echo "INSERT INTO anti.test ( id, name ) VALUES ( 'abc', 'name1' );" > insert.cql
@@ -410,7 +411,7 @@ $ for i in {1..1000}; do ccm node1 cqlsh -f insert.cql && ccm node1 nodetool flu
 
 ## 3. データの読み取りを繰り返す
 
-別ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行
+別ターミナルをもう一つ立ち上げ、インスタンスにログインして下記を実行します。
 
 ```aidl
 $ echo "SELECT * FROM anti.test WHERE id = 'abc';" > select.cql
@@ -419,6 +420,7 @@ $ for i in {1..1000}; do ccm node1 cqlsh -f select.cql; done
 
 ## 4. 読み取り状況を確認する
 
+統計ツールを用いて、読み取り性能を表示します。
 読み込んだSSTableの数、レイテンシ分布に着目します
 
 ```aidl
@@ -478,7 +480,7 @@ Cell Count per Partition
 
 ## 5. データをコンパクションして、再度読み取り状況を確認する
 
-複数のSSTableを一つにまとめます。
+断片化を引き起こしている複数のSSTableを一つにまとめます。
 まとめた後、再度4.を実行して読み取りSSTableの数、レイテンシ分布に着目します
 
 ```aidl
