@@ -35,6 +35,8 @@
 
 この演習は、Java8を用いて行います。Java9以上ですとCassandraが動作しないのでご注意ください。
 
+※ Cassandraは最新のバージョン４系でJava11に対応していますが、演習ではバージョン２系を使うため、Java8を用います。
+
 ```aidl
 $ sudo apt update
 $ sudo apt install openjdk-8-jdk
