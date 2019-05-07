@@ -37,6 +37,18 @@ OpenJDK Runtime Environment (build 1.8.0_181-b13)
 OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
 ```
 
+### python2, pip のインストール
+
+```aidl
+$ sudo apt install python
+$ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+$ python get-pip.py --user
+# pipへのPATHが通っていない場合、通します。
+$ export PATH=$PATH:/home/<user名>/.local/bin
+$ pip -V
+pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
+```
+
 ### Maven, YCSBのインストール
 
 演習でCassandraへの負荷検証を行うため、YCSBをインストールします。YCSBビルドのため、Mavenのインストールも行います。
@@ -64,18 +76,6 @@ Commands:
     shell          Interactive mode
 ...
 $ 
-```
-
-### python2, pip のインストール
-
-```aidl
-$ sudo apt install python
-$ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-$ python get-pip.py --user
-# pipへのPATHが通っていない場合、通します。
-$ export PATH=$PATH:/home/<user名>/.local/bin
-$ pip -V
-pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
 ```
 
 ### CCMのインストール
