@@ -4,6 +4,13 @@
 
 この演習は、Ubuntu on Windows 環境で実施します。
 
+※演習は、Ubuntu環境以外、任意のLinux環境やMacOSC環境でも実施することが可能です。
+必要なソフトウェアは、 以下になりますので、ご自身でインストールが可能な場合、以下のソフトウェアをインストールした上で実施してください。
+* Java8
+* CCM (Cassandra Cluster Manager)
+* YCSB
+
+
 1. Windows Subsystem for Linux(WSL)を有効化
     1. 「設定」の「アプリ」を開き、『プログラムと機能』をクリックします。![画像](../images/ubu_1.png)
     1. 『Windowsの機能の有効化または無効化』をクリックします。![画像](../images/ubu_2.png)
