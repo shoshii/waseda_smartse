@@ -4,7 +4,7 @@
 
 この演習は、Ubuntu on Windows 環境で実施します。
 
-※演習は、Ubuntu環境以外、任意のLinux環境やMacOSC環境でも実施することが可能です。
+※演習は、Ubuntu環境以外、任意のLinux環境やMacOSX環境でも実施することが可能です。
 必要なソフトウェアは、 以下になりますので、ご自身でインストールが可能な場合、以下のソフトウェアをインストールした上で実施してください。
 * Java8
 * CCM (Cassandra Cluster Manager)
