@@ -49,9 +49,22 @@ $ pip -V
 pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
 ```
 
+### CCMのインストール
+
+```aidl
+$ pip install ccm --user
+$ ccm
+Missing arguments
+Usage:
+  ccm <cluster_cmd> [options]
+  ccm <node_name> <node_cmd> [options]
+...
+```
+
 ### Maven, YCSBのインストール
 
 演習でCassandraへの負荷検証を行うため、YCSBをインストールします。YCSBビルドのため、Mavenのインストールも行います。
+YCSBは、演習７でしか使わないので、インストールに時間がかかる場合は、先に演習１〜６に進んで構いません。
 
 ```
 $ sudo apt install maven
@@ -76,18 +89,6 @@ Commands:
     shell          Interactive mode
 ...
 $ 
-```
-
-### CCMのインストール
-
-```aidl
-$ pip install ccm --user
-$ ccm
-Missing arguments
-Usage:
-  ccm <cluster_cmd> [options]
-  ccm <node_name> <node_cmd> [options]
-...
 ```
 
 # 演習1 Cassandraのデータ分散方式を確認する
