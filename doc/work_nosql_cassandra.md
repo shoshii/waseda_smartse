@@ -667,11 +667,11 @@ threadcount=4
 ```
 $ vim workloads/workloada
 # fieldlength を100にして保存
-$  bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
-$  bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$ bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$ bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
 $ vim workloads/workloada
 # fieldlength を10000にして保存
-$  bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
-$  bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$ bin/ycsb load cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
+$ bin/ycsb run cassandra-cql -P workloads/workloada -p "hosts=127.0.0.1"
 # 結果を比較
 ```
