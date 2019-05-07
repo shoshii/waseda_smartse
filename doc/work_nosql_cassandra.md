@@ -51,6 +51,8 @@ pip 18.0 from /home/ec2-user/.local/lib/python2.7/site-packages/pip (python 2.7)
 
 ### CCMのインストール
 
+CCMは、ローカル環境で擬似的に複数ノードのCassandraクラスタを稼働させることができる開発用ツールです。
+
 ```aidl
 $ pip install ccm --user
 $ ccm
