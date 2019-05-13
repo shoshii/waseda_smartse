@@ -503,6 +503,8 @@ $ ccm node1 nodetool compact
 
 ```
 $ ccm stop
+# 上のコマンドでCassandraプロセスが停止しない場合、以下で強制的にkillします。
+$ ps aux | grep cassandra | awk '{print $2}' | xargs sudo kill -9
 # 単体性能を図るため、ノード数１で ycsb という名前のクラスタを作成
 $ ccm create -n 1 -v 2.0.11 ycsb
 $ ccm start
